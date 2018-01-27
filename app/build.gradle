@@ -27,4 +27,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     compile 'com.squareup.okhttp3:okhttp:3.9.1'
+    compile 'com.github.pwittchen:reactivenetwork-rx2:0.12.2'
 }

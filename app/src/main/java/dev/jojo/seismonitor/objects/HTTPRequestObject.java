@@ -5,7 +5,6 @@ package dev.jojo.seismonitor.objects;
  */
 
 public class HTTPRequestObject {
-
     public String PARAM;
     public String VALUE;
 }

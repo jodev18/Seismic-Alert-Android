@@ -15,13 +15,39 @@ public class HistoryDB extends SQLiteOpenHelper {
     }
 
     protected class HistoryData{
+
         public static final String TABLE_NAME = "tbl_data";
+
+        public static final String ID = "data_id";
+
+        public static final String LATITUDE = "data_lat";
+
+        public static final String LONGITUDE = "data_long";
+
+        public static final String TIMESTAMP = "data_timestamp";
+
+        public static final String MAGNITUDE = "data_magnitude";
+
+        public static final String DEVICE_LOCATION_LAT = "data_device_loc_lat";
+
+        public static final String DEVICE_LOCATION_LONG = "data_device_loc_long";
+
+        public static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME +
+                "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + LATITUDE + " TEXT,"
+                + LONGITUDE + " TEXT,"
+                + TIMESTAMP + " TEXT,"
+                + MAGNITUDE + " TEXT,"
+                + DEVICE_LOCATION_LAT + " TEXT,"
+                + DEVICE_LOCATION_LONG + " TEXT);";
+
+
     }
 
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-
+        db.execSQL(HistoryData.TABLE_CREATE);
     }
 
     @Override
