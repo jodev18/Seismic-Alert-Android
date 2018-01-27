@@ -7,10 +7,21 @@
     tools:context="dev.jojo.seismonitor.Dashboard">
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/tvListEmpty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="TextView" />
+        android:text="Yay! No notifications yet."
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tvListEmpty"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        app:srcCompat="@drawable/ic_equake_launcher" />
 </RelativeLayout>
