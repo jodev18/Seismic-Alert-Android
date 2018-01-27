@@ -23,7 +23,7 @@ public class HistoryFetcher extends HistoryDB {
     public HistoryFetcher(Context ct){
         super(ct);
 
-        this.sq = getWritableDatabase();
+        this.sq = getReadableDatabase();
     }
 
     /**

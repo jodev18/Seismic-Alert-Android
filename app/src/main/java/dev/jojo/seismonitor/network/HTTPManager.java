@@ -25,6 +25,10 @@ public class HTTPManager {
         this.HTTPParams = fields;
     }
 
+    /**
+     * Performs an HTTP request and returns the response body.
+     * @return
+     */
     public String performRequest(){
 
         int param_len = HTTPParams.size();
