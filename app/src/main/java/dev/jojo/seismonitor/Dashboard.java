@@ -11,11 +11,17 @@ import android.widget.Toast;
 import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import dev.jojo.seismonitor.network.HTTPManager;
 import dev.jojo.seismonitor.objects.HTTPRequestObject;
+import dev.jojo.seismonitor.objects.QuakeInfo;
+import dev.jojo.seismonitor.utils.NumParser;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -75,8 +81,32 @@ public class Dashboard extends AppCompatActivity {
                h.post(new Runnable() {
                    @Override
                    public void run() {
-                       Toast.makeText(Dashboard.this,
-                               "Fetched: " + received, Toast.LENGTH_SHORT).show();
+                       //Toast.makeText(Dashboard.this,
+                         //      "Fetched: " + received, Toast.LENGTH_SHORT).show();
+
+                       try {
+                           JSONArray jAr = new JSONArray(received);
+
+                           int len = jAr.length();
+
+                           List<QuakeInfo> quakeInfos = new ArrayList<>();
+
+                           for(int i=0;i<len;i++){
+                               QuakeInfo qInf = new QuakeInfo();
+
+                               JSONObject jAr2 = jAr.getJSONObject(i);
+
+                               qInf.QUAKE_LAT =  jAr2.getString("Latitude");
+                               qInf.QUAKE_LONG = jAr2.getString("Longitude");
+
+                               Double mg1 = NumParser
+                                       .parseDouble(jAr2.getString("Magsens1"));
+
+                           }
+                       } catch (JSONException e) {
+                           Toast.makeText(Dashboard.this, "Error handling data", Toast.LENGTH_SHORT).show();
+                           e.printStackTrace();
+                       }
                    }
                });
 
