@@ -5,11 +5,17 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import dev.jojo.seismonitor.network.HTTPManager;
+import dev.jojo.seismonitor.objects.HTTPRequestObject;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
@@ -32,14 +38,52 @@ public class Dashboard extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
+        h = new Handler(this.getMainLooper());
+
+        fetchOnline();
         initNetworkListener();
         fetchNotification();
     }
 
     private void fetchNotification(){
 
+        ListView lNotifList = (ListView)findViewById(R.id.lvNotifList);
 
 
+
+
+    }
+
+    private void fetchOnline(){
+
+       new Thread(new Runnable() {
+           @Override
+           public void run() {
+               List<HTTPRequestObject> reqObj = new ArrayList<>();
+
+               HTTPRequestObject filler = new HTTPRequestObject();
+               filler.PARAM = "";
+               filler.VALUE = "";
+
+               reqObj.add(filler);
+
+               HTTPManager httpman = new HTTPManager("http://192.168.254.100/" +
+                       "quakemonitor/read_data.php",reqObj);
+
+               final String received = httpman.performRequest();
+
+               h.post(new Runnable() {
+                   @Override
+                   public void run() {
+                       Toast.makeText(Dashboard.this,
+                               "Fetched: " + received, Toast.LENGTH_SHORT).show();
+                   }
+               });
+
+
+
+           }
+       }).start();
     }
 
     private void initNetworkListener(){
