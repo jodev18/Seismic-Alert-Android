@@ -3,6 +3,7 @@ package dev.jojo.seismonitor.network;
 import java.io.IOException;
 import java.util.List;
 
+import dev.jojo.seismonitor.objects.HTTPRequestObject;
 import dev.jojo.seismonitor.objects.NotificationQuake;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -17,24 +18,31 @@ import okhttp3.Response;
 public class HTTPManager {
 
     private String HTTPUrl;
-    private List<NotificationQuake> HTTPParams;
+    private List<HTTPRequestObject> HTTPParams;
 
-    public HTTPManager(String url, List<NotificationQuake> fields){
+    public HTTPManager(String url, List<HTTPRequestObject> fields){
         this.HTTPUrl = url;
         this.HTTPParams = fields;
     }
 
     public String performRequest(){
 
+        int param_len = HTTPParams.size();
+
         OkHttpClient client = new OkHttpClient();
 
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("somParam", "someValue")
-                .build();
+        MultipartBody.Builder mb = new MultipartBody.Builder();
+
+        mb.setType(MultipartBody.FORM);
+
+        for(int i=0;i<param_len;i++){
+            mb.addFormDataPart(HTTPParams.get(i).PARAM,HTTPParams.get(i).VALUE);
+        }
+
+        RequestBody requestBody = mb.build();
 
         Request request = new Request.Builder()
-                .url("")
+                .url(this.HTTPUrl)
                 .post(requestBody)
                 .build();
 
