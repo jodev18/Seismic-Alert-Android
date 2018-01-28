@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">Seismonitor</string>
+    <string name="app_name">QuakeResp</string>
     <string name="title_activity_maps_notification">Quake Location</string>
 </resources>

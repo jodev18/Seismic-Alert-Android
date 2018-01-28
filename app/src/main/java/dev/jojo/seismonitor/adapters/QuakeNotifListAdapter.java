@@ -58,7 +58,7 @@ public class QuakeNotifListAdapter extends BaseAdapter {
 
         date.setText(qInf.QUAKE_TIMESTAMP);
         magn.setText(qInf.QUAKE_MAGNITUDE);
-        locn.setText(qInf.QUAKE_DEV_LAT + " , " + qInf.QUAKE_DEV_LONG);
+        locn.setText(qInf.QUAKE_LAT + " , " + qInf.QUAKE_LONG);
 
         return vv;
     }

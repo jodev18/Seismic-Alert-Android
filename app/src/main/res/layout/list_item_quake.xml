@@ -15,27 +15,31 @@
 
     <TextView
         android:id="@+id/tvTimeStamp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/imageView2"
         android:text="Date/Time"
         android:textSize="24sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:paddingLeft="12dp"/>
 
     <TextView
         android:id="@+id/tvMagnitude"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/tvTimeStamp"
         android:layout_toEndOf="@+id/imageView2"
-        android:text="Magnitude" />
+        android:text="Magnitude"
+        android:paddingLeft="12dp"/>
 
     <TextView
         android:id="@+id/tvLocation"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvMagnitude"
         android:layout_toEndOf="@+id/imageView2"
-        android:text="Location" />
+        android:text="Location"
+        android:paddingLeft="12dp"/>
 </RelativeLayout>

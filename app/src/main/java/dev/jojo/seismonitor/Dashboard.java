@@ -1,11 +1,16 @@
 package dev.jojo.seismonitor;
 
+import android.content.Intent;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
@@ -15,9 +20,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
+import dev.jojo.seismonitor.adapters.QuakeNotifListAdapter;
 import dev.jojo.seismonitor.network.HTTPManager;
 import dev.jojo.seismonitor.objects.HTTPRequestObject;
 import dev.jojo.seismonitor.objects.QuakeInfo;
@@ -89,9 +97,10 @@ public class Dashboard extends AppCompatActivity {
 
                            int len = jAr.length();
 
-                           List<QuakeInfo> quakeInfos = new ArrayList<>();
+                           final List<QuakeInfo> quakeInfos = new ArrayList<>();
 
                            for(int i=0;i<len;i++){
+
                                QuakeInfo qInf = new QuakeInfo();
 
                                JSONObject jAr2 = jAr.getJSONObject(i);
@@ -101,8 +110,48 @@ public class Dashboard extends AppCompatActivity {
 
                                Double mg1 = NumParser
                                        .parseDouble(jAr2.getString("Magsens1"));
+                               Double mg2 = NumParser.
+                                       parseDouble(jAr2.getString("Magsens2"));
 
+                               String mAve = Double.valueOf((mg1 + mg2) / 2).toString();
+
+                               qInf.QUAKE_MAGNITUDE = mAve;
+
+                               Calendar c = Calendar.getInstance();
+                               //System.out.println("Current time => " + c.getTime());
+
+                               SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy hh:mm:ss");
+                               String formattedDate = df.format(c.getTime());
+                               qInf.QUAKE_TIMESTAMP = formattedDate;
+
+                               quakeInfos.add(qInf);
                            }
+
+                           if(quakeInfos.size() > 0){
+                               TextView tvNotif = (TextView)findViewById(R.id.tvListEmpty);
+                               tvNotif.setVisibility(TextView.GONE);
+                               ImageView imNotif = (ImageView)findViewById(R.id.imgStatIcon);
+                               imNotif.setVisibility(ImageView.GONE);
+                           }
+
+                           QuakeNotifListAdapter qAdapt = new QuakeNotifListAdapter(quakeInfos,Dashboard.this);
+                           ListView lNotifList = (ListView)findViewById(R.id.lvNotifList);
+
+                           lNotifList.setAdapter(qAdapt);
+                           lNotifList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                               @Override
+                               public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    Intent viewMap = new Intent(getApplicationContext(),MapsNotificationActivity.class);
+
+                                    viewMap.putExtra("app_lat",quakeInfos.get(position).QUAKE_LAT);
+                                    viewMap.putExtra("app_long",quakeInfos.get(position).QUAKE_LONG);
+
+                                    startActivity(viewMap);
+
+                               }
+                           });
+
+
                        } catch (JSONException e) {
                            Toast.makeText(Dashboard.this, "Error handling data", Toast.LENGTH_SHORT).show();
                            e.printStackTrace();

@@ -16,4 +16,6 @@ public class EQNotificationHandler extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+
 }
