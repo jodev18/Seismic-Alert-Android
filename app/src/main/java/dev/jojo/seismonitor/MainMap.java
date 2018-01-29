@@ -164,7 +164,10 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback,Loca
                                 Double mg2 = NumParser.
                                         parseDouble(jsonObject.getString("Magsens2"));
 
-                                Double aveMg = (mg1 + mg2) / 2;
+                                Double n1 = mg1 > 10 ? mg1 - (mg1 - 10) : mg1;
+                                Double n2 = mg2 > 10 ? mg2 - (mg2 - 10) : mg2;
+
+                                Double aveMg = n1 == n2 ? n1 :(n1 > n2 ? n1 : n2);
 
                                 final Double dist = Haversine.distance(loc.getLatitude(),loc.getLongitude(),
                                         qLat,qLong);

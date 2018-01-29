@@ -43,7 +43,7 @@ public class EarthquakeCalculator {
     public String getIntensity(){
 
         //Check magnitude
-        if(isInRangeOf(this.MAGNITUDE,6.8d,9.8d)){
+        if(isInRangeOf(this.MAGNITUDE,6.8d,11.0d)){
 
             if(isInRangeOf(this.DISTANCE,0.1d,20.0d)){
                 return INTENSITY_STRONGLY;
