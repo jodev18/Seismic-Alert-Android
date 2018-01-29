@@ -63,7 +63,28 @@ public class HistoryFetcher extends HistoryDB {
         }
     }
 
-    public void clearDB(){
+    public String getLatestID(){
+
+        this.c = this.sq.rawQuery("SELECT data_id FROM "
+                + HistoryData.TABLE_NAME + " ORDER BY data_id DESC LIMIT 1",null);
+
+        if(this.c.getCount() > 0){
+
+            String latest_id = "";
+
+            while(c.moveToNext()){
+                latest_id = this.c.getString(this.c.getColumnIndex(HistoryData.ID));
+            }
+
+            return latest_id;
+        }
+        else{
+            return "0";
+        }
+
+    }
+
+    public void closeDB(){
 
         if(this.sq != null){
             if(this.sq.isOpen()){

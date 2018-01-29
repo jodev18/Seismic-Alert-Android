@@ -22,7 +22,7 @@ public class HistoryCollector extends HistoryDB {
         this.cv = new ContentValues();
     }
 
-    public void clearDB(){
+    public void closeDB(){
 
         if(this.sq != null){
             if(this.sq.isOpen()){
@@ -40,6 +40,7 @@ public class HistoryCollector extends HistoryDB {
 
         this.cv.clear();
 
+        this.cv.put(HistoryData.ID,quakeInfo.QUAKE_ID);
         this.cv.put(HistoryData.DEVICE_LOCATION_LAT, quakeInfo.QUAKE_DEV_LAT);
         this.cv.put(HistoryData.DEVICE_LOCATION_LONG, quakeInfo.QUAKE_DEV_LONG);
         this.cv.put(HistoryData.LATITUDE, quakeInfo.QUAKE_LAT);

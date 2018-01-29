@@ -2,6 +2,7 @@ package dev.jojo.seismonitor.network;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import dev.jojo.seismonitor.objects.HTTPRequestObject;
 import dev.jojo.seismonitor.objects.NotificationQuake;
@@ -33,7 +34,10 @@ public class HTTPManager {
 
         int param_len = HTTPParams.size();
 
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS).build();    // socket timeout
 
         MultipartBody.Builder mb = new MultipartBody.Builder();
 

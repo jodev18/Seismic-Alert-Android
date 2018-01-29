@@ -3,9 +3,11 @@ package dev.jojo.seismonitor;
 import android.content.Intent;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 
 import com.github.pwittchen.reactivenetwork.library.rx2.Connectivity;
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork;
+import com.google.android.gms.common.data.DataHolder;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,6 +29,8 @@ import java.util.Calendar;
 import java.util.List;
 
 import dev.jojo.seismonitor.adapters.QuakeNotifListAdapter;
+import dev.jojo.seismonitor.database.HistoryCollector;
+import dev.jojo.seismonitor.database.HistoryFetcher;
 import dev.jojo.seismonitor.network.HTTPManager;
 import dev.jojo.seismonitor.objects.HTTPRequestObject;
 import dev.jojo.seismonitor.objects.QuakeInfo;
@@ -46,6 +51,7 @@ public class Dashboard extends AppCompatActivity {
 
     private AlertDialog alertInfoDialog;
 
+    private String ROOT_URL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +60,52 @@ public class Dashboard extends AppCompatActivity {
 
         h = new Handler(this.getMainLooper());
 
-        fetchOnline();
+        ROOT_URL = PreferenceManager.getDefaultSharedPreferences
+                (getApplicationContext()).getString("app_ip",null);
+
+        Toast.makeText(this, "ROOT IP: "+ ROOT_URL, Toast.LENGTH_SHORT).show();
+
+        HistoryFetcher hf = new HistoryFetcher(Dashboard.this);
+        List<QuakeInfo> data = hf.getAllStoredNotifications();
+
+        if(data == null){
+            fetchOnline();
+        }
+        else {
+            fetchNotification(data);
+        }
+
         initNetworkListener();
-        fetchNotification();
+
     }
 
-    private void fetchNotification(){
+    private void fetchNotification(final List<QuakeInfo> quakeInfos){
 
-        ListView lNotifList = (ListView)findViewById(R.id.lvNotifList);
+        if(quakeInfos != null){
+
+            TextView tvNotif = (TextView)findViewById(R.id.tvListEmpty);
+            tvNotif.setVisibility(TextView.GONE);
+            ImageView imNotif = (ImageView)findViewById(R.id.imgStatIcon);
+            imNotif.setVisibility(ImageView.GONE);
+
+            ListView lNotifList = (ListView)findViewById(R.id.lvNotifList);
+
+            QuakeNotifListAdapter qAdapt = new QuakeNotifListAdapter(quakeInfos,Dashboard.this);
+
+            lNotifList.setAdapter(qAdapt);
+            lNotifList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent viewMap = new Intent(getApplicationContext(),MapsNotificationActivity.class);
+
+                    viewMap.putExtra("app_lat",Double.parseDouble(quakeInfos.get(position).QUAKE_LAT));
+                    viewMap.putExtra("app_long",Double.parseDouble(quakeInfos.get(position).QUAKE_LONG));
+
+                    startActivity(viewMap);
+
+                }
+            });
+        }
 
 
 
@@ -81,8 +125,8 @@ public class Dashboard extends AppCompatActivity {
 
                reqObj.add(filler);
 
-               HTTPManager httpman = new HTTPManager("http://192.168.254.100/" +
-                       "quakemonitor/read_data.php",reqObj);
+               HTTPManager httpman = new HTTPManager(ROOT_URL +
+                       "/quakemonitor/read_data.php",reqObj);
 
                final String received = httpman.performRequest();
 
@@ -93,6 +137,7 @@ public class Dashboard extends AppCompatActivity {
                          //      "Fetched: " + received, Toast.LENGTH_SHORT).show();
 
                        try {
+
                            JSONArray jAr = new JSONArray(received);
 
                            int len = jAr.length();
@@ -105,6 +150,7 @@ public class Dashboard extends AppCompatActivity {
 
                                JSONObject jAr2 = jAr.getJSONObject(i);
 
+                               qInf.QUAKE_ID = jAr2.getString("id");
                                qInf.QUAKE_LAT =  jAr2.getString("Latitude");
                                qInf.QUAKE_LONG = jAr2.getString("Longitude");
 
@@ -128,11 +174,30 @@ public class Dashboard extends AppCompatActivity {
                            }
 
                            if(quakeInfos.size() > 0){
+
                                TextView tvNotif = (TextView)findViewById(R.id.tvListEmpty);
                                tvNotif.setVisibility(TextView.GONE);
                                ImageView imNotif = (ImageView)findViewById(R.id.imgStatIcon);
                                imNotif.setVisibility(ImageView.GONE);
                            }
+
+                           HistoryCollector hc = new HistoryCollector(Dashboard.this);
+
+                           int qsize = quakeInfos.size();
+
+                           for(int i=0;i<qsize;i++){
+                               Log.d("SAVING_DB",quakeInfos.get(i).QUAKE_ID);
+                               long stat = hc.saveData(quakeInfos.get(i));
+
+                               if(stat > 0){
+                                   Log.d("DB_STAT","Saved to database!");
+                               }
+                               else{
+                                    Log.d("DB_STAT","Saving failed!");
+                               }
+                           }
+
+                           hc.closeDB();
 
                            QuakeNotifListAdapter qAdapt = new QuakeNotifListAdapter(quakeInfos,Dashboard.this);
                            ListView lNotifList = (ListView)findViewById(R.id.lvNotifList);
@@ -143,8 +208,8 @@ public class Dashboard extends AppCompatActivity {
                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                     Intent viewMap = new Intent(getApplicationContext(),MapsNotificationActivity.class);
 
-                                    viewMap.putExtra("app_lat",quakeInfos.get(position).QUAKE_LAT);
-                                    viewMap.putExtra("app_long",quakeInfos.get(position).QUAKE_LONG);
+                                    viewMap.putExtra("app_lat",Double.parseDouble(quakeInfos.get(position).QUAKE_LAT));
+                                    viewMap.putExtra("app_long",Double.parseDouble(quakeInfos.get(position).QUAKE_LONG));
 
                                     startActivity(viewMap);
 
@@ -158,16 +223,13 @@ public class Dashboard extends AppCompatActivity {
                        }
                    }
                });
-
-
-
            }
        }).start();
     }
 
     private void initNetworkListener(){
 
-        netDisposable = ReactiveNetwork.observeNetworkConnectivity(getApplicationContext())
+        netDisposable = ReactiveNetwork.observeNetworkConnectivity(Dashboard.this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Connectivity>() {
@@ -199,5 +261,13 @@ public class Dashboard extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
+    }
+
+    @Override
+    public void onDestroy(){
+        if (netDisposable != null && !netDisposable.isDisposed()) {
+            netDisposable.dispose();
+        }
+        super.onDestroy();
     }
 }

@@ -6,6 +6,7 @@ package dev.jojo.seismonitor.objects;
 
 public class QuakeInfo {
 
+    public String QUAKE_ID;
     public String QUAKE_LAT;
     public String QUAKE_LONG;
     public String QUAKE_TIMESTAMP;

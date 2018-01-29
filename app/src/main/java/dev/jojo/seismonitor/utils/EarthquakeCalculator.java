@@ -43,9 +43,9 @@ public class EarthquakeCalculator {
     public String getIntensity(){
 
         //Check magnitude
-        if(isInRangeOf(this.MAGNITUDE,6.8d,7.8d)){
+        if(isInRangeOf(this.MAGNITUDE,6.8d,9.8d)){
 
-            if(isInRangeOf(this.DISTANCE,1.0d,20.0d)){
+            if(isInRangeOf(this.DISTANCE,0.1d,20.0d)){
                 return INTENSITY_STRONGLY;
             }
             else if(isInRangeOf(this.DISTANCE,21.0d,40.0d)){
@@ -60,7 +60,7 @@ public class EarthquakeCalculator {
         }
         else if(isInRangeOf(this.MAGNITUDE,6.0d,6.7d)){
 
-            if(isInRangeOf(this.DISTANCE,1.0d,17.0d)){
+            if(isInRangeOf(this.DISTANCE,0.1d,17.0d)){
                 return INTENSITY_STRONGLY;
             }
             else if(isInRangeOf(this.DISTANCE,18.0d,37.0d)){
@@ -75,7 +75,7 @@ public class EarthquakeCalculator {
         }
         else if(isInRangeOf(this.MAGNITUDE,5.0d,5.9d)){
 
-            if(isInRangeOf(this.DISTANCE,1.0d,14.0d)){
+            if(isInRangeOf(this.DISTANCE,0.1d,14.0d)){
                 return INTENSITY_STRONGLY;
             }
             else if(isInRangeOf(this.DISTANCE,15.0d,32.0d)){
@@ -90,7 +90,7 @@ public class EarthquakeCalculator {
         }
         else if(isInRangeOf(this.MAGNITUDE, 4.5d, 4.9d)){
 
-            if(isInRangeOf(this.DISTANCE,1.0d,10.0d)){
+            if(isInRangeOf(this.DISTANCE,0.1d,10.0d)){
                 return INTENSITY_STRONGLY;
             }
             else if(isInRangeOf(this.DISTANCE,11.0d,18.0d)){
@@ -105,7 +105,7 @@ public class EarthquakeCalculator {
         }
         else if(isInRangeOf(this.MAGNITUDE, 4.0d, 4.4d)){
 
-            if(isInRangeOf(this.DISTANCE,1.0d,8.0d)){
+            if(isInRangeOf(this.DISTANCE,0.1d,8.0d)){
                 return INTENSITY_STRONGLY;
             }
             else if(isInRangeOf(this.DISTANCE,9.0d,15.0d)){
@@ -120,7 +120,7 @@ public class EarthquakeCalculator {
         }
         else if(isInRangeOf(this.MAGNITUDE, 3.7d, 3.9d)){
 
-            if(isInRangeOf(this.DISTANCE,1.0d,5.0d)){
+            if(isInRangeOf(this.DISTANCE,0.1d,5.0d)){
                 return INTENSITY_STRONGLY;
             }
             else if(isInRangeOf(this.DISTANCE,6.0d,11.0d)){
