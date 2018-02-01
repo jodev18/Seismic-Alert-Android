@@ -87,7 +87,7 @@ public class EQNotificationHandler extends Service implements LocationListener {
 
         // Display a notification about us starting.  We put an icon in the status bar.
         showNotification();
-        showNotifString("Testing dynamic string output.");
+        //showNotifString("Testing dynamic string output.");
 
         initMonitor();
 

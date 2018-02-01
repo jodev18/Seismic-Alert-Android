@@ -62,8 +62,8 @@ public class SeismoSplash extends AppCompatActivity {
         if(permission){
 
             Log.d("STARTING SERVICE","Starting service...");
-//            Intent startSeismo = new Intent().setClass(getApplicationContext(), EQNotificationHandler.class);
-//            startService(startSeismo);
+            Intent startSeismo = new Intent().setClass(getApplicationContext(), EQNotificationHandler.class);
+            startService(startSeismo);
         }
         else {
             Dexter.withActivity(SeismoSplash.this)
@@ -141,8 +141,8 @@ public class SeismoSplash extends AppCompatActivity {
 
                                         startActivity(new Intent().setClass(getApplicationContext(),MainMap.class));
                                         finish();
-//                                        Intent startSeismo = new Intent(getApplicationContext(), EQNotificationHandler.class);
-//                                        startService(startSeismo);
+                                        Intent startSeismo = new Intent(getApplicationContext(), EQNotificationHandler.class);
+                                        startService(startSeismo);
                                         dialog.dismiss();
                                     }
                                     else{

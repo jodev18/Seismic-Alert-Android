@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -44,6 +45,8 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback,Loca
     private Location loc;
 
     private SharedPreferences sp;
+
+    private MediaPlayer mp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,241 +147,7 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback,Loca
 
                         if(loc != null){
 
-                            JSONObject jsonObject = jAr.getJSONObject(0);
-
-                            Double qLat = NumParser.parseDouble(jsonObject.getString("Latitude"));
-                            Double qLong = NumParser.parseDouble(jsonObject.getString("Longitude"));
-
-                            String id = jsonObject.getString("id");
-
-                            String stored = sp.getString("latest_id","");
-
-                            if(stored.length() == 0 ){
-                                SharedPreferences.Editor e = sp.edit();
-
-                                e.putString("latest_id",id);
-                                e.commit();
-
-                                Double mg1 = NumParser
-                                        .parseDouble(jsonObject.getString("Magsens1"));
-                                Double mg2 = NumParser.
-                                        parseDouble(jsonObject.getString("Magsens2"));
-
-                                Double n1 = mg1 > 10 ? mg1 - (mg1 - 10) : mg1;
-                                Double n2 = mg2 > 10 ? mg2 - (mg2 - 10) : mg2;
-
-                                Double aveMg = n1 == n2 ? n1 :(n1 > n2 ? n1 : n2);
-
-                                final Double dist = Haversine.distance(loc.getLatitude(),loc.getLongitude(),
-                                        qLat,qLong);
-
-                                Log.d("DISTANCE_FROM_CAPTURED", dist.toString());
-
-                                final EarthquakeCalculator ec =
-                                        new EarthquakeCalculator(aveMg,dist);
-
-                                Log.d("INTENSITY", ec.getIntensity());
-                                Log.d("ETA",ec.getETA().toString());
-
-                                final LatLng currLoc = new LatLng(loc.getLatitude(),loc.getLongitude());
-                                final LatLng currLoc2 = new LatLng(qLat,qLong);
-
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mMap.clear();
-                                        mMap.addMarker(new MarkerOptions().position(currLoc).title("Current Location"));
-                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(currLoc));
-
-                                        mMap.addMarker(new MarkerOptions().position(currLoc2).title("Earthquake"));
-                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(currLoc2));
-
-                                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currLoc2,8.0f));
-                                    }
-                                });
-
-                                final PolylineOptions polylineOptions = new PolylineOptions();
-//
-                                // Setting the color of the polyline
-                                polylineOptions.color(Color.RED);
-
-                                // Setting the width of the polyline
-                                polylineOptions.width(3);
-
-                                polylineOptions.add(currLoc);
-                                polylineOptions.add(currLoc2);
-
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mMap.addPolyline(polylineOptions);
-
-                                        AlertDialog.Builder ab = new AlertDialog.Builder(MainMap.this);
-
-                                        View v = MainMap.this.getLayoutInflater().inflate(R.layout.layout_countdown,null);
-
-                                        final TextView cDown = (TextView)v.findViewById(R.id.tvCountdown);
-
-                                        TextView dets = (TextView)v.findViewById(R.id.tvDetails);
-
-                                        dets.setText("The earthquake will be felt " + ec.getIntensity() + "." + "\nDistance from detected wave: " + dist.longValue() + " km");
-
-                                        ab.setView(v);
-
-                                        final AlertDialog ad = ab.create();
-
-                                        ad.show();
-
-                                        cDown.setText(Integer.valueOf(ec.getETA().intValue()).toString());
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-
-                                                for(int i=ec.getETA().intValue();i>=0;i--){
-                                                    final Integer ic = i;
-                                                    runOnUiThread(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-
-                                                            cDown.setText(Integer.valueOf(ic).toString());
-                                                        }
-                                                    });
-                                                    try {
-                                                        Thread.sleep(1000);
-                                                    } catch (InterruptedException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-
-                                                //1.5s before dismiss
-                                                try {
-                                                    Thread.sleep(1500);
-                                                    ad.dismiss();
-                                                } catch (InterruptedException e) {
-                                                    e.printStackTrace();
-                                                }
-                                            }
-                                        }).start();
-
-                                    }
-                                });
-                            }
-                            else{
-                                if(!stored.equals(id)){
-                                    SharedPreferences.Editor e = sp.edit();
-
-                                    e.putString("latest_id",id);
-                                    e.commit();
-
-                                    Double mg1 = NumParser
-                                            .parseDouble(jsonObject.getString("Magsens1"));
-                                    Double mg2 = NumParser.
-                                            parseDouble(jsonObject.getString("Magsens2"));
-
-                                    Double aveMg = (mg1 + mg2) / 2;
-
-                                    final Double dist = Haversine.distance(loc.getLatitude(),loc.getLongitude(),
-                                            qLat,qLong);
-
-                                    Log.d("DISTANCE_FROM_CAPTURED", dist.toString());
-
-                                    final EarthquakeCalculator ec =
-                                            new EarthquakeCalculator(aveMg,dist);
-
-                                    Log.d("INTENSITY", ec.getIntensity());
-                                    Log.d("ETA",ec.getETA().toString());
-
-                                    final LatLng currLoc = new LatLng(loc.getLatitude(),loc.getLongitude());
-                                    final LatLng currLoc2 = new LatLng(qLat,qLong);
-
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mMap.clear();
-                                            mMap.addMarker(new MarkerOptions().position(currLoc).title("Current Location"));
-                                            mMap.moveCamera(CameraUpdateFactory.newLatLng(currLoc));
-
-                                            mMap.addMarker(new MarkerOptions().position(currLoc2).title("Earthquake"));
-                                            mMap.moveCamera(CameraUpdateFactory.newLatLng(currLoc2));
-
-                                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currLoc2,8.0f));
-                                        }
-                                    });
-
-                                    final PolylineOptions polylineOptions = new PolylineOptions();
-//
-                                    // Setting the color of the polyline
-                                    polylineOptions.color(Color.RED);
-
-                                    // Setting the width of the polyline
-                                    polylineOptions.width(3);
-
-                                    polylineOptions.add(currLoc);
-                                    polylineOptions.add(currLoc2);
-
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mMap.addPolyline(polylineOptions);
-
-                                            AlertDialog.Builder ab = new AlertDialog.Builder(MainMap.this);
-
-                                            View v = MainMap.this.getLayoutInflater().inflate(R.layout.layout_countdown,null);
-
-                                            final TextView cDown = (TextView)v.findViewById(R.id.tvCountdown);
-
-                                            TextView dets = (TextView)v.findViewById(R.id.tvDetails);
-
-                                            dets.setText("The earthquake will be felt " + ec.getIntensity() + "." + "\nDistance from detected wave: " + dist.longValue() + " km");
-
-                                            ab.setView(v);
-
-                                            final AlertDialog ad = ab.create();
-
-                                            ad.show();
-
-                                            cDown.setText(Integer.valueOf(ec.getETA().intValue()).toString());
-
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-
-                                                    for(int i=ec.getETA().intValue();i>=0;i--){
-                                                        final Integer ic = i;
-                                                        runOnUiThread(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-
-                                                                cDown.setText(Integer.valueOf(ic).toString());
-                                                            }
-                                                        });
-                                                        try {
-                                                            Thread.sleep(1000);
-                                                        } catch (InterruptedException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-
-                                                    //1.5s before dismiss
-                                                    try {
-                                                        Thread.sleep(1500);
-                                                        ad.dismiss();
-                                                    } catch (InterruptedException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            }).start();
-
-                                        }
-                                    });
-                                }
-                                else{
-
-                                }
-                            }
-
-
+                           handleAlertData(jAr);
                         }
 
                     }
@@ -394,6 +163,157 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback,Loca
 
         }
     });
+
+    private void analyzeAlertData(JSONObject jsonObject, Double qLat, Double qLong) throws JSONException{
+
+        Double mg1 = NumParser
+                .parseDouble(jsonObject.getString("Magsens1"));
+        Double mg2 = NumParser.
+                parseDouble(jsonObject.getString("Magsens2"));
+
+        Double n1 = mg1 > 10 ? 0 : mg1;
+        Double n2 = mg2 > 10 ? 0 : mg2;
+
+        final Double aveMg = n1 == n2 ? n1 :(n1 > n2 ? n1 : n2);
+
+        final Double dist = Haversine.distance(loc.getLatitude(),loc.getLongitude(),
+                qLat,qLong);
+
+        Log.d("DISTANCE_FROM_CAPTURED", dist.toString());
+
+        final EarthquakeCalculator ec =
+                new EarthquakeCalculator(aveMg,dist);
+
+        Log.d("INTENSITY", ec.getIntensity());
+        Log.d("ETA",ec.getETA().toString());
+
+        if(!ec.getIntensity().equals(ec.INTENSITY_UNAFFECTED)){
+
+            final LatLng currLoc = new LatLng(loc.getLatitude(),loc.getLongitude());
+            final LatLng currLoc2 = new LatLng(qLat,qLong);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions().position(currLoc).title("Current Location"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(currLoc));
+
+                    mMap.addMarker(new MarkerOptions().position(currLoc2).title("Earthquake"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(currLoc2));
+
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currLoc2,8.0f));
+                }
+            });
+
+            final PolylineOptions polylineOptions = new PolylineOptions();
+//
+            // Setting the color of the polyline
+            polylineOptions.color(Color.RED);
+
+            // Setting the width of the polyline
+            polylineOptions.width(3);
+
+            polylineOptions.add(currLoc);
+            polylineOptions.add(currLoc2);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    mp = MediaPlayer.create(MainMap.this,R.raw.alert);
+
+                    mMap.addPolyline(polylineOptions);
+
+                    AlertDialog.Builder ab = new AlertDialog.Builder(MainMap.this);
+
+                    View v = MainMap.this.getLayoutInflater().inflate(R.layout.layout_countdown,null);
+
+                    final TextView cDown = (TextView)v.findViewById(R.id.tvCountdown);
+
+                    TextView dets = (TextView)v.findViewById(R.id.tvDetails);
+
+                    mp.start();
+
+                    dets.setText("The earthquake will be felt " + ec.getIntensity() + "."
+                            + "\nDistance from detected wave: " + dist.longValue() + " km"
+                            + "\nMagnitude: " + aveMg.toString());
+
+                    ab.setView(v);
+
+                    final AlertDialog ad = ab.create();
+
+                    ad.show();
+
+                    cDown.setText(Integer.valueOf(ec.getETA().intValue()).toString());
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            for(int i=ec.getETA().intValue();i>=0;i--){
+                                final Integer ic = i;
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+
+                                        cDown.setText(Integer.valueOf(ic).toString());
+                                    }
+                                });
+                                try {
+                                    Thread.sleep(1000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            //1.5s before dismiss
+                            try {
+                                Thread.sleep(1500);
+                                ad.dismiss();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }).start();
+
+                }
+            });
+        }
+    }
+
+    private void handleAlertData(JSONArray jAr)throws JSONException{
+
+        JSONObject jsonObject = jAr.getJSONObject(0);
+
+        Double qLat = NumParser.parseDouble(jsonObject.getString("Latitude"));
+        Double qLong = NumParser.parseDouble(jsonObject.getString("Longitude"));
+
+        String id = jsonObject.getString("id");
+
+        String stored = sp.getString("latest_id","");
+
+        if(stored.length() == 0 ){
+
+            SharedPreferences.Editor e = sp.edit();
+
+            e.putString("latest_id",id);
+            e.commit();
+
+            analyzeAlertData(jsonObject,qLat,qLong);
+
+        }
+        else{
+            if(!stored.equals(id)){
+                SharedPreferences.Editor e = sp.edit();
+
+                e.putString("latest_id",id);
+                e.commit();
+
+                analyzeAlertData(jsonObject,qLat,qLong);
+            }
+        }
+    }
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
