@@ -29,7 +29,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import dev.jojo.seismonitor.Dashboard;
-import dev.jojo.seismonitor.MapsNotificationActivity;
+import dev.jojo.seismonitor.MainMap;
 import dev.jojo.seismonitor.R;
 import dev.jojo.seismonitor.database.HistoryCollector;
 import dev.jojo.seismonitor.database.HistoryFetcher;
@@ -118,7 +118,7 @@ public class EQNotificationHandler extends Service implements LocationListener {
 
         // The PendingIntent to launch our activity if the user selects this notification
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, Dashboard.class), 0);
+                new Intent(this, MainMap.class), 0);
 
         // Set the info for the views that show in the notification panel.
         Notification notification = new Notification.Builder(this)
@@ -246,17 +246,17 @@ public class EQNotificationHandler extends Service implements LocationListener {
                                             countdown(ec.getETA().intValue(),ec.getIntensity());
 
 
-                                            Intent startMapNotif = new Intent(getApplicationContext(), MapsNotificationActivity.class);
+                                            Intent startMapNotif = new Intent(getApplicationContext(), MainMap.class);
 
-                                            startMapNotif.putExtra("app_notif",true);
-                                            startMapNotif.putExtra("app_intensity", ec.getIntensity());
-                                            startMapNotif.putExtra("app_eta", ec.getETA().toString());
-                                            startMapNotif.putExtra("dev_lat",loc.getLatitude());
-                                            startMapNotif.putExtra("dev_long",loc.getLongitude());
-                                            startMapNotif.putExtra("app_lat",NumParser
-                                                    .parseDouble(quakeInfos.get(0).QUAKE_LAT));
-                                            startMapNotif.putExtra("app_long",
-                                                    NumParser.parseDouble(quakeInfos.get(0).QUAKE_LONG));
+//                                            startMapNotif.putExtra("app_notif",true);
+//                                            startMapNotif.putExtra("app_intensity", ec.getIntensity());
+//                                            startMapNotif.putExtra("app_eta", ec.getETA().toString());
+//                                            startMapNotif.putExtra("dev_lat",loc.getLatitude());
+//                                            startMapNotif.putExtra("dev_long",loc.getLongitude());
+//                                            startMapNotif.putExtra("app_lat",NumParser
+//                                                    .parseDouble(quakeInfos.get(0).QUAKE_LAT));
+//                                            startMapNotif.putExtra("app_long",
+//                                                    NumParser.parseDouble(quakeInfos.get(0).QUAKE_LONG));
 
                                             startActivity(startMapNotif);
                                         }
@@ -323,7 +323,7 @@ public class EQNotificationHandler extends Service implements LocationListener {
 
         // The PendingIntent to launch our activity if the user selects this notification
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, Dashboard.class), 0);
+                new Intent(this, MainMap.class), 0);
 
         // Set the info for the views that show in the notification panel.
         Notification notification = new Notification.Builder(this)

@@ -236,7 +236,7 @@ public class MainMap extends FragmentActivity implements OnMapReadyCallback,Loca
                     mp.start();
 
                     dets.setText("The earthquake will be felt " + ec.getIntensity() + "."
-                            + "\nDistance from detected wave: " + dist.longValue() + " km"
+                            + "\nDistance from detected wave: " + dist.toString() + " km"
                             + "\nMagnitude: " + aveMg.toString());
 
                     ab.setView(v);
